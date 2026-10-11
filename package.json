@@ -1,0 +1,25 @@
+{
+  "name": "rain-moon-walk",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "assets:character": "node scripts/prepare-character.mjs",
+    "check:character": "node scripts/check-character.mjs",
+    "check:input": "node --test scripts/check-input.test.mjs",
+    "check:door": "node --test scripts/check-door.test.mjs",
+    "check:camera": "node --test scripts/check-camera.test.mjs",
+    "check:weather": "node --test scripts/check-weather.test.mjs",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "check:seating": "node --test scripts/check-seating.test.mjs"
+  },
+  "dependencies": {
+    "@pixiv/three-vrm": "3.5.5",
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "vite": "8.3.4"
+  }
+}
