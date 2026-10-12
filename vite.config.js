@@ -1,5 +1,7 @@
 import { defineConfig } from 'vite';
 export default defineConfig({
+  // Keep the built game portable, including Live Server's /dist/index.html.
+  base: './',
   // three-vrm 3.5.5 retains a pre-r168 tslFn fallback. This project exclusively
   // uses modern Three.js; map that obsolete branch to the supported TSL Fn.
   plugins: [{ name: 'modern-vrm-tsl', transform(code, id) {

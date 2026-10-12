@@ -2,6 +2,7 @@
   "name": "rain-moon-walk",
   "version": "1.0.0",
   "private": true,
+  "license": "GPL-3.0-only",
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
@@ -11,6 +12,7 @@
     "check:door": "node --test scripts/check-door.test.mjs",
     "check:camera": "node --test scripts/check-camera.test.mjs",
     "check:weather": "node --test scripts/check-weather.test.mjs",
+    "check:glass": "node --test scripts/check-glass.test.mjs",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
     "check:seating": "node --test scripts/check-seating.test.mjs"

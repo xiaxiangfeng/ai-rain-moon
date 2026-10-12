@@ -1,11 +1,12 @@
 import * as THREE from 'three/webgpu';
 import { texture, triplanarTexture, positionWorld, normalWorldGeometry, float, normalMap, vec2, color } from 'three/tsl';
+import { assetUrl } from './assets.js';
 
 const loader = new THREE.TextureLoader(), textures = new Map();
 function map(name, channel) {
   const key = name + ':' + channel;
   if (!textures.has(key)) {
-    const t = loader.load(`/assets/materials/${name}-${channel}.jpg`);
+    const t = loader.load(assetUrl(`materials/${name}-${channel}.jpg`));
     t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
     if (channel === 'color') t.colorSpace = THREE.SRGBColorSpace;
     textures.set(key, t);

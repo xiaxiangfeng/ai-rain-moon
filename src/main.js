@@ -12,6 +12,7 @@ import { doorPose, DOOR_OUTSIDE, DOOR_INSIDE, DOOR_PALM_HEIGHT } from './door.js
 import { orbitPosition, CAFE_CAMERA_BOUNDS } from './camera.js';
 import { createWeatherCycle } from './weather.js';
 import { prepareSeat, chairNeedsAdjustment, SEAT_APPROACH, CHAIR_READY_Z } from './seating.js';
+import { assetUrl } from './assets.js';
 
 const $ = id => document.getElementById(id);
 const state = { started: false, inside: false, seated: false, rising: false, rain: 0, rainTarget: 0, wetness: 0, intensity: .68, fog: .65, autoWeather: true, gameTime: 0, elapsed: 0, moving: false, destination: null, destinationAction: null, sound: false, yaw: .35, pitch: .25, distance: 8.0, interact: null };
@@ -41,7 +42,7 @@ function zoomTo(distance) {
   state.distance = THREE.MathUtils.clamp(distance, state.inside ? 2.6 : 3.2, state.inside ? 6 : 18);
 }
 const raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-const rainAudio = new Audio('/assets/rain.mp3'), nightAudio = new Audio('/assets/night.mp3');
+const rainAudio = new Audio(assetUrl('rain.mp3')), nightAudio = new Audio(assetUrl('night.mp3'));
 rainAudio.loop = nightAudio.loop = true; rainAudio.volume = nightAudio.volume = 0;
 
 function toast(text) {
@@ -102,6 +103,7 @@ function startDoorTravel(entering) {
   resetInput(true); state.destination = state.destinationAction = null; world.marker.visible = false;
   // Use the hand nearest the free side of the pane.
   state.doorTravel = { entering, time: 0, start: girl.root.position.toArray(), phase: 'reach', side: entering ? 'left' : 'right', cameraYaw: state.yaw, cameraPitch: state.pitch };
+  state.doorPerformance = { entering, age: 0, frames: 0, maxGapMs: 0, maxUpdateMs: 0, maxCaptureMs: 0, maxRenderMs: 0, slowFrames: [] };
   toast(entering ? '推开门，走进暖和的店里。' : '推开门，回到街道。');
 }
 function updateDoorTravel(dt) {
@@ -341,6 +343,31 @@ function bindControls() {
   window.addEventListener('resize', resize);
   document.addEventListener('visibilitychange', () => { running = !document.hidden; if (!running) { resetInput(true); rainAudio.pause(); nightAudio.pause(); } else if (state.sound) { rainAudio.play().catch(() => {}); nightAudio.play().catch(() => {}); } });
 }
+async function prepareDoorRendering() {
+  const cameraPosition = camera.position.clone(), cameraRotation = camera.quaternion.clone();
+  const girlPosition = girl.root.position.clone(), girlRotation = girl.root.quaternion.clone(), angle = world.doorPivot.rotation.y;
+  try {
+    for (const entering of [true, false]) for (const time of [.45, 1.2, 2.1, 3.6]) {
+      const pose = doorPose(time, entering), indoor = THREE.MathUtils.smoothstep(time, .45, 3);
+      const blend = entering ? indoor : 1 - indoor;
+      girl.root.position.fromArray(pose.position); girl.root.rotation.y = pose.facing; girl.setInterior(pose.inside);
+      world.doorPivot.rotation.y = pose.angle;
+      camera.position.set(-6, 2.65, 2.4).lerp(new THREE.Vector3(-6.9, 2.6, -4.5), blend);
+      camera.lookAt(girl.root.position.clone().add(new THREE.Vector3(0, 1.25, 0))); camera.updateMatrixWorld();
+      // Reflector nodes update once per animation frame. compileAsync and a
+      // same-frame indoor capture do not warm the nested reflection path that
+      // runs when capture becomes the first render during an actual doorway crossing.
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      pipeline.render(); // Outside: ScenePass owns the frame's first reflection update.
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      glass.capture(scene, camera); pipeline.render();
+    }
+  } finally {
+    girl.root.position.copy(girlPosition); girl.root.quaternion.copy(girlRotation); girl.setInterior(false);
+    world.doorPivot.rotation.y = angle; world.doorPivot.updateMatrixWorld(true);
+    camera.position.copy(cameraPosition); camera.quaternion.copy(cameraRotation); camera.updateMatrixWorld();
+  }
+}
 async function boot() {
   try {
     const forceWebGL = new URLSearchParams(location.search).has('webgl');
@@ -351,13 +378,13 @@ async function boot() {
       if (!document.body.dataset.gpuError) { document.body.dataset.gpuError = event.error.message; console.error('GPU FIRST ERROR:', event.error.message); }
     });
     world = createWorld(scene); girl = await createCharacter(world); scene.add(girl.root); girl.root.position.set(.5, 0, 3.8); girl.root.rotation.y = .5;
-    const hdr = await new HDRLoader().loadAsync('/assets/city.hdr');
+    const hdr = await new HDRLoader().loadAsync(assetUrl('city.hdr'));
     hdr.mapping = THREE.EquirectangularReflectionMapping;
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromEquirectangular(hdr).texture;
     scene.environmentIntensity = .30;
     hdr.dispose(); pmrem.dispose();
-    puddles = createPuddles(scene, world); rainfall = createRain(scene); glass = createRainGlass(world.glass, renderer);
+    puddles = createPuddles(scene, world); rainfall = createRain(scene); glass = createRainGlass(world.glass, renderer, scene.environment);
     coffeeSteam = createCoffeeSteam(scene, world.coffeeSources);
     pipeline = new THREE.RenderPipeline(renderer);
     const scenePass = pass(scene, camera), sceneColor = scenePass.getTextureNode('output');
@@ -365,6 +392,9 @@ async function boot() {
     camera.position.set(5, 4.4, 12); camera.lookAt(-3.8, 2.1, -.8); resize(); bindControls();
     $('loading-text').textContent = '准备窗边雨景与咖啡热气…';
     await glass.prepare(scene, camera, scenePass, pipeline);
+    $('loading-text').textContent = '准备推门视角与室内倒影…';
+    await prepareDoorRendering();
+    $('viewport').dataset.doorPrepared = 'true';
     $('renderer-label').textContent = `Three.js r${THREE.REVISION} · ${renderer.backend.isWebGPUBackend ? 'WebGPU' : 'WebGL2 兼容模式'} · 3D 实时渲染`;
     $('loading-text').textContent = '街灯亮了，出发吧。';
     let previous = performance.now(), hudTime = 0;
@@ -398,10 +428,19 @@ async function boot() {
       // Keep the background ready while walking inside, even while the pane is
       // clear. Sitting only starts the wetting uniforms, not a new render path.
       const captureStart = performance.now();
+      if (state.inside) glass.renderWater(camera);
       if (state.inside && captureFrame++ % 2 === 0) glass.capture(scene, camera);
       const renderStart = performance.now();
       pipeline.render();
       const report = state.glassPerformance;
+      const doorReport = state.doorPerformance;
+      if (doorReport && doorReport.age < 7) {
+        doorReport.age += frameGap / 1000; doorReport.frames++;
+        const captureMs = renderStart - captureStart, renderMs = performance.now() - renderStart, updateMs = captureStart - now;
+        doorReport.maxGapMs = Math.max(doorReport.maxGapMs, frameGap); doorReport.maxUpdateMs = Math.max(doorReport.maxUpdateMs, updateMs);
+        doorReport.maxCaptureMs = Math.max(doorReport.maxCaptureMs, captureMs); doorReport.maxRenderMs = Math.max(doorReport.maxRenderMs, renderMs);
+        if (frameGap > 80 || captureMs > 80 || renderMs > 80) doorReport.slowFrames.push({ age: +doorReport.age.toFixed(2), phase: state.doorTravel?.phase || 'finished', gap: +frameGap.toFixed(1), update: +updateMs.toFixed(1), capture: +captureMs.toFixed(1), render: +renderMs.toFixed(1) });
+      }
       if (report && report.age < 12) {
         report.age += frameGap / 1000; report.frames++;
         report.maxGapMs = Math.max(report.maxGapMs, frameGap);
@@ -425,6 +464,8 @@ async function boot() {
         $('viewport').dataset.glassPerformance = JSON.stringify(state.glassPerformance || null);
         $('viewport').dataset.glassPrepared = String(glass.getPrepared());
         $('viewport').dataset.glassCoverage = glass.getCoverage().toFixed(3);
+        $('viewport').dataset.glassStats = JSON.stringify(glass.getStats());
+        $('viewport').dataset.doorPerformance = JSON.stringify(state.doorPerformance || null);
       }
     });
     // Read-only diagnostics for local verification and future development.

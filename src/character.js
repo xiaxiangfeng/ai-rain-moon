@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { VRMLoaderPlugin, MToonMaterialLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 import { MToonNodeMaterial } from '@pixiv/three-vrm/nodes';
 import { lights } from 'three/tsl';
+import { assetUrl } from './assets.js';
 
 // A complete authored character, with skinned clothes, facial morphs and spring
 // bones. Asset preparation and motion retargeting are reproducible via
@@ -13,8 +14,8 @@ export async function createCharacter(world) {
     mtoonMaterialPlugin: new MToonMaterialLoaderPlugin(parser, { materialType: MToonNodeMaterial })
   }));
   const [gltf, motionData] = await Promise.all([
-    loader.loadAsync('/assets/character/ametsuki.vrm'),
-    fetch('/assets/character/motions.json').then(r => { if (!r.ok) throw new Error('角色动作资源无法加载'); return r.json(); })
+    loader.loadAsync(assetUrl('character/ametsuki.vrm')),
+    fetch(assetUrl('character/motions.json')).then(r => { if (!r.ok) throw new Error('角色动作资源无法加载'); return r.json(); })
   ]);
   const vrm = gltf.userData.vrm;
   VRMUtils.removeUnnecessaryVertices(gltf.scene); VRMUtils.combineSkeletons(gltf.scene); VRMUtils.rotateVRM0(vrm);

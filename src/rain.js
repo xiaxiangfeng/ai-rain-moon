@@ -1,5 +1,6 @@
 import * as THREE from 'three/webgpu';
 import { Fn, uniform, attribute, vec2, vec3, float, floor, fract, dot, sin, length, normalize, smoothstep, mix, max, dFdx, dFdy, positionWorld, cameraPosition, normalWorld, normalMap, texture, uv, reflector, screenUV, mx_noise_float } from 'three/tsl';
+import { assetUrl } from './assets.js';
 
 // Faraz Shaikh / demo-2023-rain-puddle, GPL-3.0.
 // The original finite-difference ring-wave derivative, translated to TSL.
@@ -46,7 +47,7 @@ export function createPuddles(scene, world) {
     const t = loader.load(path); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
     if (srgb) t.colorSpace = THREE.SRGBColorSpace; return t;
   };
-  const albedo = load('/assets/asphalt.jpg', true), normal = load('/assets/asphalt-normal.jpg'), rough = load('/assets/asphalt-roughness.jpg');
+  const albedo = load(assetUrl('asphalt.jpg'), true), normal = load(assetUrl('asphalt-normal.jpg')), rough = load(assetUrl('asphalt-roughness.jpg'));
   const asphaltUV = positionWorld.xz.mul(.16);
   const staticNormal = texture(normal, asphaltUV).xyz.mul(2).sub(1);
   const slopes = staticNormal.xy.mul(mix(.50, .035, mask)).add(ripple.mul(.25).mul(mix(.30, 1, mask)).mul(wetness));
@@ -84,7 +85,7 @@ export function createRain(scene) {
 
   const MAX = 190, ages = new Float32Array(MAX), geometry = new THREE.PlaneGeometry(1, 1);
   geometry.setAttribute('aAge', new THREE.InstancedBufferAttribute(ages, 1));
-  const atlas = new THREE.TextureLoader().load('/assets/splash.png'); atlas.colorSpace = THREE.SRGBColorSpace;
+  const atlas = new THREE.TextureLoader().load(assetUrl('splash.png')); atlas.colorSpace = THREE.SRGBColorSpace;
   const age = attribute('aAge'); const tile = floor(age.mul(18)).add(1).clamp(1, 19);
   const atlasUV = vec2(uv().x.add(tile.mod(4)).div(4), uv().y.add(float(4).sub(floor(tile.div(4)))).div(5));
   const splashMat = new THREE.MeshBasicNodeMaterial({ transparent: true, side: THREE.DoubleSide, depthWrite: false, color: '#c3d6e8' });

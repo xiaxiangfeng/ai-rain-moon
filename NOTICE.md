@@ -1,8 +1,8 @@
 # 来源与许可
 
-本地项目的原创游戏逻辑和 Faraz demo 的衍生雨景代码采用 GNU GPL v3，完整文本见 `LICENSE`。第三方模型、Heartfelt 衍生模块和素材分别保留自己的许可，不因根目录 LICENSE 而改变。
+**中文** | [English](NOTICE.en.md)
 
-**兼容性状态**：Heartfelt 衍生代码采用 CC BY-NC-SA 3.0，该许可与 GPL v3 不兼容；单独标注各文件许可不能解决其作为同一程序组合发布的问题。当前版本的组合发布许可尚未解决，需要取得兼容授权或以独立实现替换 Heartfelt 衍生模块。其非商业条件也仍然有效。参考 [Creative Commons 官方兼容列表](https://creativecommons.org/compatible-licenses/)。以下来源记录不代表所有第三方素材均已完成许可核查。
+本项目的原创游戏逻辑、独立玻璃雨珠实现和 Faraz demo 的衍生雨景代码继续采用 GNU GPL v3，项目包声明为 `GPL-3.0-only`，完整文本见 [LICENSE](LICENSE)。第三方模型、动作、素材及依赖分别保留自己的许可，不因根目录 LICENSE 而改变。以下来源记录不代表所有第三方素材均已完成许可核查。
 
 ## 地面与雨
 
@@ -24,9 +24,15 @@
 
 ## 玻璃
 
-`src/heartfelt.js` 是用户提供的 `rain-heart/rain-heart.html` 中 Heartfelt 水滴算法的 TSL 移植，保留静止水珠、两层滑动水滴、水痕、有限差分折射及 textureLod 模糊。`src/glass.js` 把该水滴场接到实际 3D 落地窗和实时场景纹理，增加雨前清晰、湿度渐变和雨停后消退。
+2026-10-12 独立重写玻璃水滴实现，删除旧 `src/heartfelt.js` 及其调用：
 
-原作：**Heartfelt — Martijn Steinrucken / BigWings，2017**，来源 [Shadertoy](https://www.shadertoy.com/view/ltffzl)。原许可为 [Creative Commons Attribution–NonCommercial–ShareAlike 3.0 Unported](https://creativecommons.org/licenses/by-nc-sa/3.0/)。`src/heartfelt.js` 衍生代码沿用该许可，与 GPL 模块分别注明。原作音乐和背景图片没有用于本游戏。
+- `src/glass-droplets.js`：固定时间步长的表面粒子、空间网格接触检测、体积守恒汇合、表面钉扎、重力滑落、湿痕引导和排流蒸发。
+- `src/glass-field.js`：实例化球冠几何场，把解析坡度、水厚度和局部清晰度绘制到按可见窗面聚焦的半浮点纹理。
+- `src/glass.js`：随相机方向变化的实时场景折射、菲涅耳环境反射、轻微色散、局部清晰水痕、mipmap 雾度、坐稳后渐入及渲染预热。
+
+以上新实现按 **GPL-3.0-only** 发布，未保留原作的周期水滴场、静止水滴函数、滑落层或哈希表达式。它是物理启发的有限表面粒子模型，不是完整流体求解器。
+
+历史与视觉参考：**Heartfelt — Martijn Steinrucken / BigWings，2017**，来源 [Shadertoy](https://www.shadertoy.com/view/ltffzl)。早期版本曾移植用户提供的 `rain-heart/rain-heart.html`，原许可为 [CC BY-NC-SA 3.0](https://creativecommons.org/licenses/by-nc-sa/3.0/)，与 GPL v3 不兼容（参见 [Creative Commons 官方兼容列表](https://creativecommons.org/compatible-licenses/)）。当前源码及重新生成的构建产物不再包含该衍生模块；旧版本的许可不会因本次重写而改变。这里保留作者与链接作为视觉参考和历史记录，原作音乐和背景图片没有用于本游戏。
 
 `demo-2023-rain-puddle/` 与 `rain-heart/` 是最初移植时的参考目录，不是当前运行、构建或角色资源准备脚本的依赖。此处保留原路径作为来源记录。
 

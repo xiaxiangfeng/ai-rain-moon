@@ -2,6 +2,7 @@ import * as THREE from 'three/webgpu';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { pbr } from './materials.js';
 import { SEAT_POSITION, CHAIR_OPEN_Z } from './seating.js';
+import { assetUrl } from './assets.js';
 
 export const DOOR = new THREE.Vector3(-4.6, 0, -.1);
 export const SEAT = new THREE.Vector3().fromArray(SEAT_POSITION);
@@ -100,7 +101,7 @@ export function createWorld(scene) {
   const moonLight = new THREE.DirectionalLight('#a8c8fc', 1.35); moonLight.position.set(-13, 22, 12); moonLight.castShadow = true;
   moonLight.shadow.mapSize.set(2048, 2048); Object.assign(moonLight.shadow.camera, { left: -30, right: 30, top: 24, bottom: -24, near: .5, far: 70 }); moonLight.shadow.normalBias = .04; moonLight.shadow.bias = -.0003; scene.add(moonLight);
   const moon = new THREE.Mesh(new THREE.SphereGeometry(2.5, 24, 16), new THREE.MeshBasicMaterial({ color: '#e9e5cc', fog: false })); moon.position.set(-38, 35, -70); scene.add(moon);
-  const asphalt = loader.load('/assets/asphalt.jpg'); asphalt.wrapS = asphalt.wrapT = THREE.RepeatWrapping; asphalt.repeat.set(12, 5); asphalt.colorSpace = THREE.SRGBColorSpace;
+  const asphalt = loader.load(assetUrl('asphalt.jpg')); asphalt.wrapS = asphalt.wrapT = THREE.RepeatWrapping; asphalt.repeat.set(12, 5); asphalt.colorSpace = THREE.SRGBColorSpace;
   const groundMat = new THREE.MeshStandardMaterial({ color: '#717782', map: asphalt, roughness: .93 });
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(110, 55), groundMat); ground.rotation.x = -Math.PI / 2; ground.position.set(0, -.018, 5); ground.receiveShadow = true; scene.add(ground);
   // Elevated sidewalk and curb. Fine tiles introduce a readable sense of scale.
@@ -211,7 +212,7 @@ export function createWorld(scene) {
   }
   label(cafe, '今日菜单\n手冲咖啡\n奶香拿铁\n热可可', -11.0, 2.8, -7.89, 1.1, 1.5, '#293a38', '#e5d8bf', 'serif', .08);
   // Generated street artwork is a framed print inside the 3D room.
-  const paintingTexture = loader.load('/assets/street-painting.png'); paintingTexture.colorSpace = THREE.SRGBColorSpace;
+  const paintingTexture = loader.load(assetUrl('street-painting.png')); paintingTexture.colorSpace = THREE.SRGBColorSpace;
   box(cafe, -9.05, 2.82, -7.87, 1.94, 1.19, .07, darkWood);
   const painting = new THREE.Mesh(new THREE.PlaneGeometry(1.82, 1.07), new THREE.MeshStandardMaterial({ map: paintingTexture, roughness: .9 })); painting.position.set(-9.05, 2.82, -7.823); cafe.add(painting);
   for (const x of [-11.8, -8.5, -5.0]) {
