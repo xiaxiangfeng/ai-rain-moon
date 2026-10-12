@@ -2,6 +2,8 @@
 
 [中文](README.md) | **English**
 
+**Live demo:** [Play Rain Moon in your browser](https://home.annibao.top/ai-rain-moon/)
+
 A browser-based 3D rainy-night walking game. Stroll along the street, jog as the rain starts, push open the café door, and sit beside a floor-to-ceiling window as raindrops slide across the gradually blurred glass.
 
 The project uses Three.js `WebGPURenderer`, preferring WebGPU with a WebGL2 compatibility mode. The character is a rigged and skinned anime schoolgirl VRM model. Streets, buildings, and interior furniture use procedurally generated 3D geometry with PBR materials, environment lighting, and local lights.

@@ -2,6 +2,8 @@
 
 **中文** | [English](README.en.md)
 
+**在线体验**：[开始雨月漫游](https://home.annibao.top/ai-rain-moon/)
+
 一个运行在浏览器中的 3D 雨夜漫游游戏。沿着街角散步，雨落下时小跑，推开咖啡馆的门，在落地窗前坐下，看雨珠滑过逐渐朦胧的玻璃。
 
 项目使用 Three.js 的 `WebGPURenderer`，优先使用 WebGPU，并提供 WebGL2 兼容模式。人物采用带骨骼和蒙皮的动漫少女 VRM 模型，街道、建筑与室内家具通过程序生成三维几何，结合 PBR 材质、环境光和灯光渲染。
