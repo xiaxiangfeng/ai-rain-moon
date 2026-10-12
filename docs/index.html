@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#101b25" />
+  <meta name="description" content="雨月 · 三维雨夜漫游。在放学后的街道散步，在咖啡馆的落地窗前，等一场雨。" />
+  <title>雨月 — 一场雨，一段漫游</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23141f2c'/%3E%3Cpath d='M43 12a22 22 0 1 0 9 35A20 20 0 0 1 43 12' fill='%23e9d7b7'/%3E%3C/svg%3E" />
+  <script type="module" crossorigin src="./assets/index-CoGeSz7-.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/vrm-CrcHSE-1.js">
+  <link rel="stylesheet" crossorigin href="./assets/index-eUBsWrGn.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="雨月首页"><span class="moon-mark">☾</span><span>雨月<small>雨夜漫游</small></span></a>
+    <div class="tagline">一场雨，一段漫游 <span>留一点时间，听城市的雨</span></div>
+    <nav><button id="sound" class="icon-button" aria-label="开启环境音"><span>◌</span> <span class="button-label">环境音</span><i id="sound-light"></i></button><button id="help-button" class="icon-button" aria-label="操作指南">? <span class="button-label">怎么玩</span></button><button id="settings-button" class="icon-button" aria-label="打开雨景设置">☷</button></nav>
+  </header>
+  <main id="game" tabindex="0" aria-label="3D 雨月漫游游戏，支持键盘和触屏移动、拖动视角、点按交互">
+    <div id="viewport"></div>
+    <div class="vignette"></div>
+    <div class="location"><span class="eyebrow">放学后的小路</span><h1 id="location-name">雨月街区</h1><p><span class="location-dot"></span><span id="location-detail">暮色将至 · 街角散步</span></p></div>
+    <div class="weather-card"><span id="weather-icon">☾</span><div><span id="weather-name">雨前的宁静</span><small><span id="clock">18:24</span> <b>·</b> <span id="temperature">19°C</span></small></div><div class="weather-lines"><i></i><i></i><i></i></div></div>
+    <div class="opening" id="opening"><span class="eyebrow">一段漫步，一场细雨</span><h2>今晚，走慢一点。</h2><p>沿着灯光散步，或在窗边，等一场雨。</p><button id="start" class="primary">开始漫游 <span>↗</span></button><small>3D 自由漫游 · 建议开启环境音</small></div>
+    <div id="interaction" class="interaction hidden"><kbd>E</kbd><span id="interaction-text">进入咖啡馆</span><button id="interact-button" aria-label="执行交互">↗</button></div>
+    <div id="toast" class="toast" role="status"></div>
+    <div class="scene-caption"><span id="chapter">01</span><i></i><span id="caption">听见城市，慢慢安静下来。</span></div>
+    <div class="camera-help">拖动转动视角 <span>·</span> 滚轮拉近</div>
+    <div id="loader"><span class="loading-moon">☾</span><span id="loading-text">正在点亮雨月街区…</span><div class="loading-track"><i></i></div></div>
+    <aside id="settings" class="panel hidden"><div class="panel-title">这一场雨<button data-close="settings" aria-label="关闭设置">×</button></div><label>雨势 <span id="rain-label">细雨</span><input id="rain-intensity" type="range" min="0.2" max="1" step="0.01" value="0.68" /></label><label>窗玻璃的朦胧 <span id="fog-label">自然</span><input id="fog-intensity" type="range" min="0" max="1" step="0.01" value="0.65" /></label><label class="toggle-label">让天气自然变化<input id="auto-weather" type="checkbox" checked /></label><label class="toggle-label">始终显示触屏操作<input id="touch-layout" type="checkbox" /></label><p>雨会渐渐落下，积水会慢慢汇成。<br>在窗边坐一会儿，看雨滴滑过玻璃。</p><small id="renderer-label">正在初始化渲染器</small></aside>
+    <aside id="help" class="panel hidden"><div class="panel-title">在雨月街区漫游<button data-close="help" aria-label="关闭指南">×</button></div><div class="desktop-instructions"><p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 或方向键，沿街移动</p><p>按住鼠标拖动，环顾四周<br>滚轮拉近或拉远视角</p><p><kbd>E</kbd> 在门口进入咖啡馆<br><kbd>E</kbd> 在窗边坐下，再次按下起身</p></div><div class="touch-instructions"><p>左侧摇杆控制方向，轻推慢走。<br>右手拖动画面，环顾四周。</p><p>双指张开拉近，合拢拉远；<br>也可点按「＋」「−」调整距离。</p><p>靠近门或座位后，点按右侧提示<br>即可进店、坐下或起身。</p></div><p>点按街道路面，也可以走过去。<br>下雨时少女会自然改为小跑。</p><button id="help-cafe" class="secondary">带我去咖啡馆 →</button></aside>
+    <div id="touch-controls" aria-label="触屏操作">
+      <div class="joystick-wrap"><button id="joystick" aria-label="拖动摇杆移动"><span class="joystick-ring"></span><span id="joystick-thumb"></span></button><span class="touch-label">移动</span></div>
+      <div class="touch-actions"><button id="touch-interact" class="hidden"><span id="touch-action-label">进入咖啡馆</span><span aria-hidden="true">↗</span></button><div class="touch-zoom" role="group" aria-label="视角距离"><button id="zoom-out" aria-label="拉远视角">−</button><button id="zoom-in" aria-label="拉近视角">＋</button></div></div>
+      <p class="touch-hint">拖动画面环顾 · 双指缩放</p>
+    </div>
+  </main>
+  <footer class="bottom-bar"><div class="controls"><span><kbd>W A S D</kbd> 移动</span><span><kbd>E</kbd> 交互</span><span class="mode"><i></i><span id="movement-state">自在漫步</span></span></div><div class="weather-switch" role="group" aria-label="切换天气"><button id="dry" class="active">☾ <span>雨前</span></button><button id="wet">☂ <span>听雨</span></button></div><button id="go-cafe" class="cafe-button"><span>☕</span> <span id="cafe-action-label">去咖啡馆</span><span>↗</span></button></footer>
+</body>
+</html>
